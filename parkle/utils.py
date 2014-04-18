@@ -98,12 +98,11 @@ def nested_kept_set(kept_set):
 
 
 def validate_kept_set(dice):
-    """ Ensure that all dice kept are scoring dice,
-    otherwise return error.
+    """ Ensure that all dice kept are scoring dice, otherwise return error.
+    :return: `boolean` : True or asserts that dice must be in range D6.
     """
-    if not validate_dice_in_range(dice):
-        return False
     try:
+        validate_dice_in_range(dice)
         calculate_point_set(dice)
     except AssertionError as ae:
         return False
@@ -114,8 +113,7 @@ def validate_kept_set(dice):
 def validate_dice_in_range(dice_set):
     """ Helper function for validating dice are within range.
     Also Validates max set length of 6, and minimum of 1
-    :return:
-        `boolean` : True or asserts that dice must be in range D6.
+    :return: `boolean` : True or asserts that dice must be in range D6.
     """
     set_length = 1 if type(dice_set) is int else len(dice_set)
     assert set_length <= 6, "Length of dice set {0} expected to be no more than 6!".format(set_length)
@@ -245,7 +243,6 @@ def calculate_point_set(kept_set):
     """
     if type(kept_set) is int:
         kept_set = [kept_set]  # Ensure set is array for algorithm, regardless of calling pattern
-    validate_dice_in_range(kept_set)  # Validate dice kept are D6, and between 1-6 dice
     nested_set = nested_kept_set(kept_set)
     dice_values = list(nested_set.viewkeys())
     dice_counts = list(nested_set.itervalues())
