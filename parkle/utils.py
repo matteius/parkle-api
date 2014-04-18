@@ -85,15 +85,6 @@ def points_possible(dice):
     return False
 
 
-def validate_kept_set(dice):
-    """ Ensure that all dice kept are scoring dice,
-    otherwise return error.
-    """
-    # Strategy should be similar to scoring function :-)
-    # TODO -- This function exists as the scoring function
-    pass
-
-
 def nested_kept_set(kept_set):
     """ Build a dictionary from kept_set where each key is a dice face
      and lookup resolves the count in the set.
@@ -104,6 +95,20 @@ def nested_kept_set(kept_set):
         nested_set[die] = count + 1
 
     return nested_set
+
+
+def validate_kept_set(dice):
+    """ Ensure that all dice kept are scoring dice,
+    otherwise return error.
+    """
+    if not validate_dice_in_range(dice):
+        return False
+    try:
+        calculate_point_set(dice)
+    except AssertionError as ae:
+        return False
+    else:
+        return True
 
 
 def validate_dice_in_range(dice_set):
