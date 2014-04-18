@@ -52,7 +52,9 @@ def perform_dice_roll(n):
 
 def check_player_for_existing_game(player_key):
     """ Checks for the game_uuid of a game player is currently engaged.
-    :param player_key: the player api ley being checked
+    For the purpose of joining a game, the atomic function `initiate_game`
+    should be called which verifies in an atomic way for game creation.
+    :param player_key: the player api key being checked
     :type player_key: `string`
     :return: False or the matching game uuid string
     :rtype: False or `string`
@@ -64,24 +66,28 @@ def check_player_for_existing_game(player_key):
     return False
 
 
-def initiate_game(player_key, ai_bot_key=None):
-    """ Is called to initiate a new game for the player,
-    verification no game exists is done prior to calling.
-    :param player_key:
-    :type player_key:
-    :return:
-    :rtype:
+def initiate_game(player_key, game_uuid=None):
+    """ Atomic function for initializing a game for human player.
+    Verification player is not a part of existing game is part of call.
+    Player will join game specified in parameter, or will spawn a new game.
+    :param player_key: player api key being initiated into game
+    :param game_uuid: (optional) game uuid to join.
+    :return: game_uuid `string` or False (player already in existing game)
     """
+    new_game = False
+    if game_uuid is None:  # Completely new game
+        game_uuid = uuid.uuid4()
+        new_game = True
     my_conn = redis.Redis(connection_pool=POOL)
-    game_uuid = uuid.uuid4()
-    my_conn.hset(u"player_table", player_key, game_uuid)
-    scores_key = u"{0}_scores".format(game_uuid)
-    my_conn.hset(scores_key, player_key, 0)
-    if ai_bot_key:
-        my_conn.hset(scores_key, ai_bot_key, 0)
-    state_key = u"{0}_state".format(game_uuid)
-    my_conn.hset(state_key, u"start_time", datetime.datetime.now())
-    my_conn.hset(state_key, u"current_player", player_key)
-    my_conn.hset(state_key, u"dice_roll", [])
+    r = my_conn.hsetnx(u"player_table", player_key, game_uuid)
+    if r:  # If player is now added to game (success)
+        scores_key = u"{0}_scores".format(game_uuid)
+        my_conn.hset(scores_key, player_key, 0)
+        if new_game:  # Initialize new game
+            state_key = u"{0}_state".format(game_uuid)
+            my_conn.hset(state_key, u"start_time", datetime.datetime.now())
+            my_conn.hset(state_key, u"current_player", player_key)
+            my_conn.hset(state_key, u"dice_roll", [])
 
-    return game_uuid
+        return game_uuid
+    return False
