@@ -50,7 +50,6 @@ def perform_dice_roll(n):
     dice = utils.dice_roll(n)
 
 
-
 def check_player_for_existing_game(player_key):
     """ Checks for the game_uuid of a game player is currently engaged.
     :param player_key: the player api ley being checked
@@ -84,6 +83,5 @@ def initiate_game(player_key, ai_bot_key=None):
     my_conn.hset(state_key, u"start_time", datetime.datetime.now())
     my_conn.hset(state_key, u"current_player", player_key)
     my_conn.hset(state_key, u"dice_roll", [])
-
 
     return game_uuid

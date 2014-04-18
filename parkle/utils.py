@@ -265,8 +265,8 @@ def calculate_point_set(kept_set):
         elif is_four_of_kind_and_pair(unique_dice_count, dice_counts):
             return 1500
         else:  # other score combinations exist for 6 kept set ...
+            score = 0  # result accumulator
             if has_five_of_a_kind(dice_counts):
-                score = 0  # result accumulator
                 for face_value, count in nested_set.iteritems():
                     if count == 5:
                         score += calculate_point_set([face_value for n in range(0, 5)])
@@ -274,7 +274,6 @@ def calculate_point_set(kept_set):
                         score += calculate_point_set(face_value)
                 return score  # Accumulated recursively
             elif has_four_of_a_kind(dice_counts):
-                score = 0
                 alt_kept_set = []
                 for face_value, count in nested_set.iteritems():
                     if count == 4:
@@ -285,7 +284,6 @@ def calculate_point_set(kept_set):
                 score += calculate_point_set(alt_kept_set)
                 return score  # Accumulated recursively
             elif has_three_of_a_kind(dice_counts):
-                score = 0
                 alt_kept_set = []
                 for face_value, count in nested_set.iteritems():
                     if count == 3:
@@ -295,6 +293,8 @@ def calculate_point_set(kept_set):
                             alt_kept_set.append(face_value)
                 score += calculate_point_set(alt_kept_set)
                 return score  # Accumulated recursively
+            else:  # recursively figure out which dice don't score (3 x 3)
+                return calculate_point_set(kept_set[:3]) + calculate_point_set(kept_set[3:])
 
     # A kept set of 5 may signify:
     #  * Five of a kind (2000 pts)
@@ -321,6 +321,8 @@ def calculate_point_set(kept_set):
                             alt_kept_set.append(face_value)
                 score += calculate_point_set(alt_kept_set)
                 return score  # Accumulated recursively
+            else:  # recursively figure out which dice don't score (3 x 2)
+                return calculate_point_set(kept_set[:3]) + calculate_point_set(kept_set[3:])
 
     # A kept set of 4 may signify:
     #  * Four of a kind (1000 pts)
@@ -336,16 +338,16 @@ def calculate_point_set(kept_set):
                     else:
                         score += calculate_point_set([face_value])
                 return score  # Accumulated recursively
-            else:  # A set of [1, 1, 5, 5]
+            else:  # A set of [1, 1, 5, 5] perhaps
                 return calculate_point_set(kept_set[0:2]) + calculate_point_set(kept_set[2:4])
 
     # A kept set of 3 may signify:
     #  * 3 of a kind (face_value * 100)
-    #  * [1, 1, 5] or [5, 5, 1]
+    #  * [1, 1, 5] or [5, 5, 1] could score
     elif kept_set_length == 3:
         if is_three_of_a_kind(unique_dice_count, dice_counts):
             points = dice_values[0] * 100  # 3 of a kind (face_value * 100)
-            if points == 100:  # This is a special case where each 1 is worth 100
+            if points == 100:  # This is a special case for three ones
                 return 300
             else:
                 return points
@@ -355,7 +357,7 @@ def calculate_point_set(kept_set):
                     calculate_point_set(kept_set[2]))
 
     # A kept set of 2 may signify:
-    #  * [1, 1]; [1, 5]; [5, 5]
+    #  * [1, 1]; [1, 5]; [5, 5] are scoring pairs
     elif kept_set_length == 2:  # Handle this case recursively
         return calculate_point_set(kept_set[0]) + calculate_point_set(kept_set[1])
 
