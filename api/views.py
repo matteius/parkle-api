@@ -33,7 +33,7 @@ class GameStatedView(APIView):
         # Would be nice to do something to validate the API player's key is part of the game
 
 
-        # So now we actually have to look up the game state from redis [How to model the state in redis ;-)]
+        # So now we actually have to look up the game state from redis
 
 
         # Choose how to represent this state in a response from the API
@@ -49,7 +49,7 @@ class GameActionView(APIView):
 
 
 class CreateGameView(APIView):
-    """ API end-point for performing an action on a specific Parkle Game. """
+    """ API end-point for creating a new Parkle game -- separate end-point for joining a game. """
 
     def post(self, request):
         request_data = JSONParser().parse(request)
@@ -66,16 +66,15 @@ class CreateGameView(APIView):
                 w = "Security key mismatch for player key {0}".format(player_key)
                 log.warning(w)
                 return validation_error_response()
-            game_uuid = state_utils.check_player_for_existing_game(player_key)
-            if game_uuid:
+            new_game_uuid = state_utils.initiate_game(player_key)
+            if not new_game_uuid:
+                game_uuid = state_utils.check_player_for_existing_game(player_key)
                 e = {"error": "Sorry, it appears you have an existing game with uuid: {0}".format(game_uuid)}
                 return Response(e, status=status.HTTP_400_BAD_REQUEST)
+            # TODO new game uuid was created -- return response
+            # TODO AI bots logic (add to game) might be a part of Game Create
         except ParklePlayer.DoesNotExist:
             return validation_error_response()
-        else:  # Request validated, create game
-            ai_username = data.pop('computer_bot_username')
-
-
 
 
 class RequestPlayerKeyView(APIView):
