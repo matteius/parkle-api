@@ -49,7 +49,7 @@ class GameActionView(APIView):
 
 
 class CreateGameView(APIView):
-    """ API end-point for creating a new Parkle game -- separate end-point for joining a game. """
+    """ API end-point for performing an action on a specific Parkle Game. """
 
     def post(self, request):
         request_data = JSONParser().parse(request)
@@ -59,22 +59,25 @@ class CreateGameView(APIView):
         data = serializer.object
         #player = None
         player_key = data.pop('player_api_key')
-        try:  # Validate the player is who they claim to be -- possibly reusable but avoid overusing queryset
-            player = ParklePlayer.objects.get(player_key=player_key)
-            secret_key = data.pop('player_secret_key')
-            if player.secret_key != secret_key:
-                w = "Security key mismatch for player key {0}".format(player_key)
-                log.warning(w)
-                return validation_error_response()
-            new_game_uuid = state_utils.initiate_game(player_key)
-            if not new_game_uuid:
-                game_uuid = state_utils.check_player_for_existing_game(player_key)
-                e = {"error": "Sorry, it appears you have an existing game with uuid: {0}".format(game_uuid)}
-                return Response(e, status=status.HTTP_400_BAD_REQUEST)
-            # TODO new game uuid was created -- return response
-            # TODO AI bots logic (add to game) might be a part of Game Create
-        except ParklePlayer.DoesNotExist:
+        player = account_utils.validate_player_key(player_key, data)
+        if not player:
             return validation_error_response()
+
+        new_game_uuid = state_utils.initiate_game(player_key)
+        if not new_game_uuid:
+            game_uuid = state_utils.check_player_for_existing_game(player_key)
+            e = {u"error": u"Sorry, it appears you have an existing game with uuid: {0}".format(game_uuid)}
+            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+
+        r = {u"game_uuid": new_game_uuid}
+        return Response(r, status=status.HTTP_201_CREATED)
+
+
+class GameAddPlayer(APIView):
+    """ API end-point for validating and adding a player to an initialized game. """
+
+    def post(self, request, ):
+        pass
 
 
 class RequestPlayerKeyView(APIView):
