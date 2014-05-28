@@ -99,15 +99,16 @@ def nested_kept_set(kept_set):
 
 def validate_kept_set(dice):
     """ Ensure that all dice kept are scoring dice, otherwise return error.
-    :return: `boolean` : True or asserts that dice must be in range D6.
+    :return: (`boolean`, `int`) : (True or asserts that dice must be in range D6, score).
     """
+    points = 0
     try:
         validate_dice_in_range(dice)
-        calculate_point_set(dice)
+        points = calculate_point_set(dice)
     except AssertionError as ae:
-        return False
+        return False, points
     else:
-        return True
+        return True, points
 
 
 def validate_dice_in_range(dice_set):
@@ -373,4 +374,4 @@ def calculate_point_set(kept_set):
         elif value == 5:
             return 50
 
-    assert False, "Dice set contained non scoring values {0}!".format(kept_set)
+    assert False, u"Dice set contained non scoring values {0}!".format(kept_set)

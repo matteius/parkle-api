@@ -14,4 +14,12 @@ class InitiateGameSerializer(serializers.Serializer):
 
 class GameStateSerializer(serializers.Serializer):
     game_uuid = serializers.CharField()
-    player_api_key = serializers.CharField(required=False)
+    player_api_key = serializers.CharField()
+
+
+class GameActionSerializer(serializers.Serializer):
+    game_uuid = serializers.CharField()
+    player_api_key = serializers.CharField()
+    kept_set = serializers.RelationsList()
+
+

@@ -91,3 +91,25 @@ def initiate_game(player_key, game_uuid=None):
 
         return game_uuid
     return False
+
+
+def current_player_check(game_uuid, player_key):
+    """ Checks if the player key is the current player in game uuid,
+    but only at that instance of time it checks.  Returns boolean.
+    :param game_uuid:
+    :type game_uuid:
+    :param player_key:
+    :type player_key:
+    :return:
+    :rtype:
+    """
+    my_conn = redis.Redis(connection_pool=POOL)
+    game_state = u"{0}_state".format(game_uuid)
+    actual_current = my_conn.hget(game_state, u'current_player')
+    if actual_current == player_key:
+        return True
+    return False
+
+
+def perform_game_action(game_uuid, player_key):
+    pass

@@ -8,6 +8,7 @@ from accounts.models import ParklePlayer
 from accounts import utils as account_utils
 
 from parkle import state_utils
+from parkle import utils
 
 import logging
 log = logging.getLogger(__name__)
@@ -45,7 +46,27 @@ class GameActionView(APIView):
     """ API end-point for performing an action on a specific Parkle Game. """
 
     def post(self, request, ):
-        pass
+        request_data = JSONParser().parse(request)
+        serializer = serializers.GameActionSerializer(data=request_data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = serializer.object
+        game_uuid = data.pop('game_uuid')
+        player_key = data.pop('player_api_key')
+        # Actions:  1.) Keep a set and roll or 2.) Keep a set and score out
+        is_current = state_utils.current_player_check(game_uuid, player_key)
+        if not is_current:
+            e = {u"error": u"It appears you are not the current player."}
+            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+
+        dice_string = data.pop('dice_string')  # Comma separated dice string, nice and simple
+        dice_list = map(int, dice_string.split(u','))
+        valid, points = utils.validate_kept_set(dice_list)
+        if not valid:
+            e = {u"error": u"Dice list provided was not valid in form or scoring."}
+            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 class CreateGameView(APIView):
