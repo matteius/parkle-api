@@ -120,13 +120,13 @@ def test_is_three_of_a_kind():
     """
     kept_set_valid = [6, 6, 6]
     nested_set = parkle_utils.nested_kept_set(kept_set_valid)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     unique_dice_count = len(nested_set)
     assert parkle_utils.is_three_of_a_kind(unique_dice_count, dice_counts), "Expected set is three of a kind!"
 
     kept_set_invalid = [6, 5, 6]
     nested_set = parkle_utils.nested_kept_set(kept_set_invalid)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     unique_dice_count = len(nested_set)
     assert not parkle_utils.is_three_of_a_kind(unique_dice_count, dice_counts), "Expected set is not three of a kind!"
 
@@ -136,13 +136,13 @@ def test_is_four_of_a_kind():
     """
     kept_set_valid = [2, 2, 2, 2]
     nested_set = parkle_utils.nested_kept_set(kept_set_valid)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     unique_dice_count = len(nested_set)
     assert parkle_utils.is_four_of_a_kind(unique_dice_count, dice_counts), "Expected set is four of a kind!"
 
     kept_set_invalid = [1, 2, 5, 6]
     nested_set = parkle_utils.nested_kept_set(kept_set_invalid)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     unique_dice_count = len(nested_set)
     assert not parkle_utils.is_four_of_a_kind(unique_dice_count, dice_counts), "Expected set is not four of a kind!"
 
@@ -152,13 +152,13 @@ def test_is_five_of_a_kind():
     """
     kept_set_valid = [2, 2, 2, 2, 2]
     nested_set = parkle_utils.nested_kept_set(kept_set_valid)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     unique_dice_count = len(nested_set)
     assert parkle_utils.is_five_of_a_kind(unique_dice_count, dice_counts), "Expected set is five of a kind!"
 
     kept_set_invalid = [1, 2, 5, 6, 6]
     nested_set = parkle_utils.nested_kept_set(kept_set_invalid)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     unique_dice_count = len(nested_set)
     assert not parkle_utils.is_five_of_a_kind(unique_dice_count, dice_counts), "Expected set is not five of a kind!"
 
@@ -168,13 +168,13 @@ def test_is_six_of_a_kind():
     """
     kept_set_valid = [4, 4, 4, 4, 4, 4]
     nested_set = parkle_utils.nested_kept_set(kept_set_valid)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     unique_dice_count = len(nested_set)
     assert parkle_utils.is_six_of_a_kind(unique_dice_count, dice_counts), "Expected set is six of a kind!"
 
     kept_set_invalid = [1, 2, 2, 5, 6, 6]
     nested_set = parkle_utils.nested_kept_set(kept_set_invalid)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     unique_dice_count = len(nested_set)
     assert not parkle_utils.is_six_of_a_kind(unique_dice_count, dice_counts), "Expected set is not six of a kind!"
 
@@ -200,13 +200,13 @@ def test_is_two_sets_of_three():
     kept_valid_double_set = [2, 3, 2, 3, 2, 3]
     nested_set = parkle_utils.nested_kept_set(kept_valid_double_set)
     unique_dice_count = len(nested_set)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     assert parkle_utils.is_two_sets_of_three(unique_dice_count, dice_counts), "Expected a double set of threes!"
 
     kept_invalid_double_set = [2, 1, 2, 3, 2, 3]
     nested_set = parkle_utils.nested_kept_set(kept_invalid_double_set)
     unique_dice_count = len(nested_set)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     assert not parkle_utils.is_two_sets_of_three(unique_dice_count, dice_counts), "Expected no double set of threes!"
 
 
@@ -216,13 +216,13 @@ def test_is_four_of_kind_and_pair():
     kept_valid_set = [2, 2, 2, 2, 5, 5]
     nested_set = parkle_utils.nested_kept_set(kept_valid_set)
     unique_dice_count = len(nested_set)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     assert parkle_utils.is_four_of_kind_and_pair(unique_dice_count, dice_counts), "Expected a 4-set and a double!"
 
     kept_valid_set = [1, 2, 2, 2, 5, 5]
     nested_set = parkle_utils.nested_kept_set(kept_valid_set)
     unique_dice_count = len(nested_set)
-    dice_counts = nested_set.itervalues()
+    dice_counts = nested_set.values()
     assert not parkle_utils.is_four_of_kind_and_pair(unique_dice_count, dice_counts), "Expected invalid set!"
 
 

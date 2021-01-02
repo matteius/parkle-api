@@ -129,7 +129,7 @@ def is_three_pair(unique_dice_count, nested_set):
     Assumes dice are within range.
     """
     if unique_dice_count == 3:
-        for face_value, count in nested_set.iteritems():
+        for face_value, count in nested_set.items():
             if count != 2:
                 return False
         return True  # (3) Unique dice and each as pairs
@@ -245,8 +245,8 @@ def calculate_point_set(kept_set):
     if type(kept_set) is int:
         kept_set = [kept_set]  # Ensure set is array for algorithm, regardless of calling pattern
     nested_set = nested_kept_set(kept_set)
-    dice_values = list(nested_set.viewkeys())
-    dice_counts = list(nested_set.itervalues())
+    dice_values = list(nested_set.keys())
+    dice_counts = list(nested_set.values())
     unique_dice_count = len(dice_values)
     kept_set_length = len(kept_set)
     # A kept set of 6 may signify:
@@ -270,7 +270,7 @@ def calculate_point_set(kept_set):
         else:  # other score combinations exist for 6 kept set ...
             score = 0  # result accumulator
             if has_five_of_a_kind(dice_counts):
-                for face_value, count in nested_set.iteritems():
+                for face_value, count in nested_set.items():
                     if count == 5:
                         score += calculate_point_set([face_value for n in range(0, 5)])
                     else:  # Only one remaining die
@@ -278,7 +278,7 @@ def calculate_point_set(kept_set):
                 return score  # Accumulated recursively
             elif has_four_of_a_kind(dice_counts):
                 alt_kept_set = []
-                for face_value, count in nested_set.iteritems():
+                for face_value, count in nested_set.items():
                     if count == 4:
                         score += calculate_point_set([face_value for n in range(0, 4)])
                     else:
@@ -288,7 +288,7 @@ def calculate_point_set(kept_set):
                 return score  # Accumulated recursively
             elif has_three_of_a_kind(dice_counts):
                 alt_kept_set = []
-                for face_value, count in nested_set.iteritems():
+                for face_value, count in nested_set.items():
                     if count == 3:
                         score += calculate_point_set([face_value for n in range(0, 3)])
                     else:
@@ -307,7 +307,7 @@ def calculate_point_set(kept_set):
         else:  # other score combinations exist for 5 kept set ...
             if has_four_of_a_kind(dice_counts):
                 score = 0  # result accumulator
-                for face_value, count in nested_set.iteritems():
+                for face_value, count in nested_set.items():
                     if count == 4:
                         score += calculate_point_set([face_value for n in range(0, 4)])
                     else:  # Only one remaining die
@@ -316,7 +316,7 @@ def calculate_point_set(kept_set):
             elif has_three_of_a_kind(dice_counts):
                 score = 0
                 alt_kept_set = []
-                for face_value, count in nested_set.iteritems():
+                for face_value, count in nested_set.items():
                     if count == 3:
                         score += calculate_point_set([face_value for n in range(0, 3)])
                     else:
@@ -335,7 +335,7 @@ def calculate_point_set(kept_set):
         else:  # Other score combinations exist for a 4 kept set?
             if has_three_of_a_kind(dice_counts):  # 3 of a kind and (1|5)
                 score = 0  # Accumulate the result
-                for face_value, count in nested_set.iteritems():
+                for face_value, count in nested_set.items():
                     if count == 3:
                         score += calculate_point_set([face_value for n in range(0, 3)])
                     else:
