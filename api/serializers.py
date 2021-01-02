@@ -20,6 +20,6 @@ class GameStateSerializer(serializers.Serializer):
 class GameActionSerializer(serializers.Serializer):
     game_uuid = serializers.CharField()
     player_api_key = serializers.CharField()
-    kept_set = serializers.RelationsList()
+    #kept_set = serializers.RelationsList()
 
 
