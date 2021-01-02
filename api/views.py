@@ -19,7 +19,7 @@ def validation_error_response():
     return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GameStatedView(APIView):
+class GameStateView(APIView):
     """ API end-point for requesting a specific Parkle game state. """
 
     def post(self, request,):
@@ -28,7 +28,7 @@ class GameStatedView(APIView):
         serializer = serializers.GameStateSerializer(data=request_data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        data = serializer.object
+        data = serializer.validated_data
         game_uuid = data.pop('game_uuid')
 
         # Would be nice to do something to validate the API player's key is part of the game
@@ -50,20 +50,20 @@ class GameActionView(APIView):
         serializer = serializers.GameActionSerializer(data=request_data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        data = serializer.object
+        data = serializer.validated_data
         game_uuid = data.pop('game_uuid')
         player_key = data.pop('player_api_key')
         # Actions:  1.) Keep a set and roll or 2.) Keep a set and score out
         is_current = state_utils.current_player_check(game_uuid, player_key)
         if not is_current:
-            e = {u"error": u"It appears you are not the current player."}
+            e = {"error": "It appears you are not the current player."}
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
-        dice_string = data.pop('dice_string')  # Comma separated dice string, nice and simple
-        dice_list = map(int, dice_string.split(u','))
+        dice_string = data.pop('dice_string')
+        dice_list = map(int, dice_string.split(','))
         valid, points = utils.validate_kept_set(dice_list)
         if not valid:
-            e = {u"error": u"Dice list provided was not valid in form or scoring."}
+            e = {"error": "Dice list provided was not valid in form or scoring."}
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -77,7 +77,7 @@ class CreateGameView(APIView):
         serializer = serializers.InitiateGameSerializer(data=request_data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        data = serializer.object
+        data = serializer.validated_data
         #player = None
         player_key = data.pop('player_api_key')
         player = account_utils.validate_player_key(player_key, data)
@@ -87,10 +87,10 @@ class CreateGameView(APIView):
         new_game_uuid = state_utils.initiate_game(player_key)
         if not new_game_uuid:
             game_uuid = state_utils.check_player_for_existing_game(player_key)
-            e = {u"error": u"Sorry, it appears you have an existing game with uuid: {0}".format(game_uuid)}
+            e = {"error": f"Sorry, it appears you have an existing game with uuid: {game_uuid}"}
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
-        r = {u"game_uuid": new_game_uuid}
+        r = {"game_uuid": new_game_uuid}
         return Response(r, status=status.HTTP_201_CREATED)
 
 
@@ -109,17 +109,17 @@ class RequestPlayerKeyView(APIView):
         serializer = serializers.RequestPlayerSerializer(data=request_data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        data = serializer.object
-        username = data.pop('username_requested')
+        data = serializer.validated_data
+        username = data.pop('username')
         player, v = ParklePlayer.objects.get_or_create(username=username)
         if not v:
             r = {"error": "The requested username is already taken."}
             return Response(r, status=status.HTTP_400_BAD_REQUEST)
-        email_address = data.pop('email_address')
-        player = account_utils.finalize_new_player(player, email_address)
+        email = data.pop('email')
+        player = account_utils.finalize_new_player(player, email)
         r = {
             "username": player.username,
-            "email_address": player.email_address,
+            "email": player.email,
             "player_key": player.player_key,
             "secret_key": player.secret_key,
             "note": "Save this data off, you will not be able to retrieve it at this time!"
