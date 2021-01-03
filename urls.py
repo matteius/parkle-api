@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, include, url
+from django.urls import include, path
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns(
-    '',
-    url(r'^v1/', include('api.urls', namespace='api')),
-)
+urlpatterns = [
+    path('v1/', include('api.urls', namespace='api')),
+]

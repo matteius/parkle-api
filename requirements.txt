@@ -1,9 +1,7 @@
-django==1.6             # web-framework of choice
-MySQL-python==1.2.3     # The Python MySQL bindings
-South>=0.7.3            # Python-Django MySQL migrations
-yolk==0.4.1             # List out installed package versions (on virtualenv)
-ipython==0.10.2         # Shell Plus!
-django-extensions==0.6  # Also Shell Plus!
+Django==3.1.4
+ipython==7.19.0
+jedi==0.17.2
+django-extensions==3.1.0
 
 # Python service calls
 #requests==1.2.3
@@ -11,24 +9,15 @@ django-extensions==0.6  # Also Shell Plus!
 # System monitoring and Performance
 #raven==2.0.3
 
-#git+https://github.com/matteius/parkle.git
-
-# required by jenkins test automation and code coverage reports
-coverage==3.6
-#django-jenkins==0.14.0
-django-coverage==1.2.2
-pep8==1.4.5
-pyflakes==0.6.1
-pytest==2.3.5
-pytest-django==2.3.0
-django-pytest==0.2.0
-
+coverage==5.3.1
+pep8==1.7.1
+pyflakes==2.2.0
+pytest==6.2.1
 
 # For API
-djangorestframework==2.3.8
+djangorestframework==3.12.2
 
 # For Gamestate
-redis==2.8.0
-hiredis==0.1.1
-
+redis==3.5.3
+mysqlclient==2.0.3
 

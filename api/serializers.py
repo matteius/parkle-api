@@ -2,8 +2,8 @@ from rest_framework import serializers
 
 
 class RequestPlayerSerializer(serializers.Serializer):
-    username_requested = serializers.CharField()
-    email_address = serializers.EmailField()
+    username = serializers.CharField()
+    email= serializers.EmailField()
 
 
 class InitiateGameSerializer(serializers.Serializer):
@@ -20,6 +20,6 @@ class GameStateSerializer(serializers.Serializer):
 class GameActionSerializer(serializers.Serializer):
     game_uuid = serializers.CharField()
     player_api_key = serializers.CharField()
-    kept_set = serializers.RelationsList()
+    kept_set = serializers.CharField()
 
 
