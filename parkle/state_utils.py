@@ -1,6 +1,6 @@
+import json
 import redis
 import uuid
-import datetime
 
 from parkle import utils
 
@@ -38,16 +38,29 @@ Ideally most keys in are based on game uuid, such as follows:
 # TODO Pull connection settings from settings
 POOL = redis.ConnectionPool(host='127.0.0.1', port=6379, db=0)
 
+def get_redis_connection():
+    my_conn = redis.Redis(connection_pool=POOL)
+    return my_conn
 
-def perform_dice_roll(n):
-    """ Will use the parkle util to perform the roll, but
-    returns the result as a string as for saving in a redis key.
-    :param n: number of dice to roll
-    :type n: `int`
-    :return: the comma seperated string of dice
-    :rtype: `string`
+
+def fetch_dice_state(game_uuid):
+    game_state = f"{game_uuid}_state"
+    my_conn = get_redis_connection()
+    dice = my_conn.hget(game_state, "dice_roll").decode('utf-8')
+    dice = json.loads(dice)
+    return dice
+
+
+def perform_dice_roll(game_uuid, n):
+    """ Utilize the parkle dice roll utility and roll n dice and save it to the game state.
+    Does not validate current player, that should be done in conjunction with calling this.
     """
+    game_state = f"{game_uuid}_state"
+    my_conn = get_redis_connection()
     dice = utils.dice_roll(n)
+    my_conn.hset(game_state, "dice_roll", json.dumps(dice))
+    return dice
+
 
 
 def check_player_for_existing_game(player_key):
@@ -59,7 +72,7 @@ def check_player_for_existing_game(player_key):
     :return: False or the matching game uuid string
     :rtype: False or `string`
     """
-    my_conn = redis.Redis(connection_pool=POOL)
+    my_conn = get_redis_connection()
     current_game = my_conn.hget("player_table", player_key).decode('utf-8')
     if current_game:
         return current_game
@@ -78,16 +91,16 @@ def initiate_game(player_key, game_uuid=None):
     if game_uuid is None:  # Completely new game
         game_uuid = uuid.uuid4().hex
         new_game = True
-    my_conn = redis.Redis(connection_pool=POOL)
+    my_conn = get_redis_connection()
+    my_conn.flushdb()
     r = my_conn.hsetnx("player_table", player_key, game_uuid)
     if r:  # If player is now added to game (success)
         scores_key = f"{game_uuid}_scores"
         my_conn.hset(scores_key, player_key, 0)
         if new_game:  # Initialize new game
-            state_key = f"{game_uuid}_state"
-            #my_conn.hset(state_key, "start_time", datetime.datetime.now())
-            my_conn.hset(state_key, "current_player", player_key)
-            my_conn.hset(state_key, "dice_roll", '[]')
+            game_state = f"{game_uuid}_state"
+            my_conn.hset(game_state, "current_player", player_key)
+            perform_dice_roll(game_uuid, 6)
 
         return game_uuid
     return False
@@ -96,14 +109,8 @@ def initiate_game(player_key, game_uuid=None):
 def current_player_check(game_uuid, player_key):
     """ Checks if the player key is the current player in game uuid,
     but only at that instance of time it checks.  Returns boolean.
-    :param game_uuid:
-    :type game_uuid:
-    :param player_key:
-    :type player_key:
-    :return:
-    :rtype:
     """
-    my_conn = redis.Redis(connection_pool=POOL)
+    my_conn = get_redis_connection()
     game_state = f"{game_uuid}_state"
     actual_current = my_conn.hget(game_state, 'current_player')
     if actual_current and actual_current.decode('utf-8') == player_key:

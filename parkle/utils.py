@@ -68,6 +68,7 @@ def points_possible(dice):
     :return:
         `boolean` : Returns truth value if points are possible from dice list.
     """
+    dice = nested_dice(dice)
     num_pairs = 0
     for i in dice:
         if i[0] == 1 or i[0] == 5:
@@ -95,6 +96,15 @@ def nested_kept_set(kept_set):
         nested_set[die] = count + 1
 
     return nested_set
+
+
+def validate_dice_subset(dice, subset):
+    available_dice = dice.copy()
+    for die in subset:
+        if die not in available_dice:
+            return False
+        available_dice.remove(die)
+    return True
 
 
 def validate_kept_set(dice):

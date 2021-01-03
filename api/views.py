@@ -35,10 +35,13 @@ class GameStateView(APIView):
 
 
         # So now we actually have to look up the game state from redis
-
+        dice = state_utils.fetch_dice_state(game_uuid)
 
         # Choose how to represent this state in a response from the API
-        response = {"game_uuidxxxx": "TOKEN-GAMESTATE"}
+        response = {
+            "game_uuid": game_uuid,
+            "dice": dice
+        }
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -59,12 +62,39 @@ class GameActionView(APIView):
             e = {"error": "It appears you are not the current player."}
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
-        dice_string = data.pop('dice_string')
-        dice_list = map(int, dice_string.split(','))
-        valid, points = utils.validate_kept_set(dice_list)
-        if not valid:
-            e = {"error": "Dice list provided was not valid in form or scoring."}
+        kept_set = data.get('kept_set')
+        dice_state = state_utils.fetch_dice_state(game_uuid)
+
+        if not utils.points_possible(dice_state):
+            e = {"error": f"Current dice state is non-scoring: {dice_state}."}
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
+
+        if not utils.validate_dice_subset(dice_state, kept_set):
+            e = {"error": f"List of Dice Kept is not contained in dice state {dice_state}."}
+            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+
+        valid, points = utils.validate_kept_set(kept_set)
+        if not valid:
+           e = {"error": "Dice list provided was not valid in form or scoring."}
+           return Response(e, status=status.HTTP_400_BAD_REQUEST)
+
+        roll_again = data.get('roll_again')
+        if roll_again:
+            n = len(dice_state) - len(kept_set)
+            dice_state = state_utils.perform_dice_roll(game_uuid, n)
+            if not utils.points_possible(dice_state):
+                r = {"outcome": f"You rolled again but there were no scoring possibilities in {dice_state}.",
+                     "dice": dice_state}
+                return Response(r, status=status.HTTP_200_OK)
+        else:  # Score out and advance the turn
+            pass  # TODO
+
+        r = {
+            "game_uuid": game_uuid,
+            "points": points,
+            "dice": dice_state,
+        }
+        return Response(r, status.HTTP_200_OK)
 
 
 
